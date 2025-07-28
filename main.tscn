@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://b5qujrxt1wjw2"]
+
+[ext_resource type="PackedScene" uid="uid://ubba06bqytni" path="res://camera_controller.tscn" id="1_ig7tw"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_7dm0k"]
+size = Vector3(5, 0.2, 5)
+
+[node name="Main" type="Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_7dm0k")
+
+[node name="CameraController" parent="." instance=ExtResource("1_ig7tw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.518575, 0)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, 3, 0)
