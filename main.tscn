@@ -1,17 +1,31 @@
-[gd_scene load_steps=3 format=3 uid="uid://b5qujrxt1wjw2"]
+[gd_scene load_steps=7 format=3 uid="uid://b5qujrxt1wjw2"]
 
-[ext_resource type="PackedScene" uid="uid://ubba06bqytni" path="res://camera_controller.tscn" id="1_ig7tw"]
+[ext_resource type="Script" uid="uid://bdli0w6t1cn1c" path="res://main.gd" id="1_0xm2m"]
+[ext_resource type="PackedScene" uid="uid://ubba06bqytni" path="res://world/camera_controller.tscn" id="3_1bvp3"]
+[ext_resource type="Shader" uid="uid://da5mbhx5fdo6l" path="res://world/ground_plane.gdshader" id="3_h2yge"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_7dm0k"]
-size = Vector3(5, 0.2, 5)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_n3ksy"]
+render_priority = 0
+shader = ExtResource("3_h2yge")
+shader_parameter/gridlines_in_mesh = 1000.0
+shader_parameter/fine_width = Vector2(1e-07, 1e-07)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_1bvp3"]
+material = SubResource("ShaderMaterial_n3ksy")
+size = Vector2(1000, 1000)
 
 [node name="Main" type="Node3D"]
+script = ExtResource("1_0xm2m")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="DefaultCube" type="MeshInstance3D" parent="."]
 mesh = SubResource("BoxMesh_7dm0k")
-
-[node name="CameraController" parent="." instance=ExtResource("1_ig7tw")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.518575, 0)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, 3, 0)
+
+[node name="GroundPlane" type="MeshInstance3D" parent="."]
+mesh = SubResource("PlaneMesh_1bvp3")
+
+[node name="CameraController" parent="." instance=ExtResource("3_1bvp3")]
