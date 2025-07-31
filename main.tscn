@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://bdli0w6t1cn1c" path="res://main.gd" id="1_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://ubba06bqytni" path="res://world/camera_controller.tscn" id="3_1bvp3"]
 [ext_resource type="Shader" uid="uid://da5mbhx5fdo6l" path="res://world/ground_plane.gdshader" id="3_h2yge"]
-[ext_resource type="Script" uid="uid://dtgyci3hw5cc6" path="res://ground_plane.gd" id="3_lquwl"]
+[ext_resource type="Script" uid="uid://dtgyci3hw5cc6" path="res://world/ground_plane.gd" id="3_lquwl"]
 [ext_resource type="Script" uid="uid://g22gf4uoho3q" path="res://mesh_instance_3d.gd" id="5_lquwl"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_7dm0k"]
