@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://ubba06bqytni"]
+[gd_scene load_steps=6 format=3 uid="uid://ubba06bqytni"]
 
 [ext_resource type="Script" uid="uid://rl3rpqju4dm2" path="res://world/camera_controller.gd" id="1_8y15a"]
 [ext_resource type="Shader" uid="uid://dvnj2spjbjroc" path="res://world/meterstick.gdshader" id="2_vjjq0"]
@@ -16,14 +16,12 @@ material = SubResource("StandardMaterial3D_4jwau")
 radius = 0.01
 height = 0.02
 
-[sub_resource type="BoxMesh" id="BoxMesh_vjjq0"]
-size = Vector3(2, 2, 2)
-
 [node name="CameraController" type="Node3D"]
 script = ExtResource("1_8y15a")
 meterstick_material = SubResource("ShaderMaterial_vjjq0")
 
 [node name="CameraRoot" type="Node3D" parent="."]
+transform = Transform3D(0.818401, -0.134217, 0.558754, 0, 0.972341, 0.233564, -0.574648, -0.191149, 0.795765, 0, 0, 0)
 
 [node name="OrbitCam" type="Camera3D" parent="CameraRoot"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
@@ -38,6 +36,3 @@ mesh = SubResource("SphereMesh_4jwau")
 
 [node name="root_to_plane" type="MeshInstance3D" parent="."]
 skeleton = NodePath("../CameraRoot")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("BoxMesh_vjjq0")

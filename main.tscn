@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://b5qujrxt1wjw2"]
+[gd_scene load_steps=13 format=3 uid="uid://b5qujrxt1wjw2"]
 
 [ext_resource type="Script" uid="uid://bdli0w6t1cn1c" path="res://main.gd" id="1_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://ubba06bqytni" path="res://world/camera_controller.tscn" id="3_1bvp3"]
@@ -22,8 +22,12 @@ size = Vector2(1000, 1000)
 
 [sub_resource type="SystemFont" id="SystemFont_lquwl"]
 
+[sub_resource type="TextMesh" id="TextMesh_lquwl"]
+text = "+Y"
+font = SubResource("SystemFont_lquwl")
+
 [sub_resource type="TextMesh" id="TextMesh_7mycd"]
-text = "+Z"
+text = "+X"
 font = SubResource("SystemFont_lquwl")
 
 [node name="Main" type="Node3D"]
@@ -47,6 +51,11 @@ visible = false
 mesh = SubResource("ArrayMesh_h2yge")
 script = ExtResource("5_lquwl")
 
-[node name="axes labels" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.32982)
+[node name="y label" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1)
+mesh = SubResource("TextMesh_lquwl")
+
+[node name="x label" type="MeshInstance3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 1, 0, 0)
 mesh = SubResource("TextMesh_7mycd")
+skeleton = NodePath("../y label")

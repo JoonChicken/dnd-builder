@@ -70,7 +70,16 @@ func _process(delta: float) -> void:
         velocity *= 0.8
     
     velocity = velocity.limit_length(camera_max_speed)
-    camera_root.position += velocity * camera_zoom_mult * 0.6 * delta
+    
+    if Input.is_action_pressed("snapping"):
+        velocity.y = 0.0
+        if direction.y != 0.0 && (Input.is_action_just_pressed("camera_up") || Input.is_action_just_pressed("camera_down")):
+            if direction.y > 0.0:
+                camera_root.position.y = ceil(camera_root.position.y + 0.000001)
+            else:
+                camera_root.position.y = floor(camera_root.position.y - 0.000001)
+    else:
+        camera_root.position += velocity * camera_zoom_mult * 0.6 * delta
     
     var root_pos = camera_root.global_position
     var st = SurfaceTool.new()
@@ -84,8 +93,7 @@ func _process(delta: float) -> void:
     st.set_material(meterstick_material)
     st.add_vertex(root_pos)
     var linemesh = st.commit()
-    $root_to_plane.mesh = linemesh    
-    
+    $root_to_plane.mesh = linemesh
 
 
 func change_viewmode(new_mode: int) -> void:
