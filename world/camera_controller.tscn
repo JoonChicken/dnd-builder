@@ -8,7 +8,7 @@ render_priority = 0
 shader = ExtResource("2_vjjq0")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4jwau"]
-render_priority = 1
+render_priority = 5
 shading_mode = 0
 
 [sub_resource type="SphereMesh" id="SphereMesh_4jwau"]
@@ -30,9 +30,11 @@ current = true
 fov = 50.0
 
 [node name="root_visual" type="MeshInstance3D" parent="CameraRoot"]
+layers = 2
 mesh = SubResource("SphereMesh_4jwau")
 
 [node name="FreeCam" type="Camera3D" parent="CameraRoot"]
+visible = false
 
 [node name="root_to_plane" type="MeshInstance3D" parent="."]
 skeleton = NodePath("../CameraRoot")

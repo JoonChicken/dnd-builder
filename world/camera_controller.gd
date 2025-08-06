@@ -13,7 +13,8 @@ var velocity := Vector3.ZERO
 @export var camera_max_speed := 8.0    # how fast camera translates when pressing WASDEQ
 @export var camera_rotate_mult := 0.003    # mouse movement in viewport (pixels) to rotation of camera (radians)
 @export var camera_zoom_mult := 1.0
-var camera_default_zoom : float  # how far away the camera is from its origin (in meters)
+var camera_default_zoom_perspective : float  # how far away the camera is from its origin (in meters)
+var camera_default_zoom_orthogonal : float
 var prev_mouse_pos := Vector2.ZERO
 
 var viewmode_root_rotation_save : Vector3
@@ -25,11 +26,13 @@ func _ready() -> void:
     camera_root = $CameraRoot
     camera = $CameraRoot/OrbitCam
     root_visual = $CameraRoot/root_visual
-    camera_default_zoom = camera.position.z
+    camera_default_zoom_perspective = camera.position.z
+    camera_default_zoom_orthogonal = 5.0
 
 
 func _process(delta: float) -> void: 
     var direction := Vector3.ZERO
+    var target_speed = camera_max_speed * (3 if Input.is_action_pressed("shift") else 1)
     
     if Input.is_action_pressed("camera_forward"):
         direction.z -= 1
@@ -44,15 +47,21 @@ func _process(delta: float) -> void:
     if Input.is_action_pressed("camera_down"):
         direction.y -= 1
     if Input.is_action_just_pressed("zoom_in"):
-        camera_zoom_mult *= 0.9
-        camera.position.z = camera_zoom_mult * camera_default_zoom
-        root_visual.mesh.radius = 0.01 * camera_zoom_mult
-        root_visual.mesh.height = 0.02 * camera_zoom_mult
+        if current_mode == modes.EDITMODE:
+            camera.size *= 0.8 # orthogonal stuff
+        else:
+            camera_zoom_mult *= 0.8
+            camera.position.z = camera_zoom_mult * camera_default_zoom_perspective
+            root_visual.mesh.radius = 0.01 * camera_zoom_mult
+            root_visual.mesh.height = 0.02 * camera_zoom_mult
     if Input.is_action_just_pressed("zoom_out"):
-        camera_zoom_mult *= 1.1
-        camera.position.z = camera_zoom_mult * camera_default_zoom
-        root_visual.mesh.radius = 0.01 * camera_zoom_mult
-        root_visual.mesh.height = 0.02 * camera_zoom_mult
+        if current_mode == modes.EDITMODE:
+            camera.size *= 1.25
+        else:
+            camera_zoom_mult *= 1.25
+            camera.position.z = camera_zoom_mult * camera_default_zoom_perspective
+            root_visual.mesh.radius = 0.01 * camera_zoom_mult
+            root_visual.mesh.height = 0.02 * camera_zoom_mult
         
     if current_mode != modes.EDITMODE:
         if Input.is_action_just_pressed("camera_orbit"):
@@ -65,11 +74,10 @@ func _process(delta: float) -> void:
         
     if direction != Vector3.ZERO:
         direction = direction.normalized().rotated(Vector3.UP, camera_root.rotation.y)
-        velocity += direction
+        velocity += direction * 80 * delta
     else:
-        velocity *= 0.8
-    
-    velocity = velocity.limit_length(camera_max_speed)
+        velocity -= velocity * 12 * delta
+    velocity = velocity.limit_length(target_speed)
     
     if Input.is_action_pressed("snapping"):
         velocity.y = 0.0
@@ -79,7 +87,7 @@ func _process(delta: float) -> void:
             else:
                 camera_root.position.y = floor(camera_root.position.y - 0.000001)
     else:
-        camera_root.position += velocity * camera_zoom_mult * 0.6 * delta
+        camera_root.position += velocity * (1 + (camera_zoom_mult - 1) * 0.7) * 0.6 * delta
     
     var root_pos = camera_root.global_position
     var st = SurfaceTool.new()
@@ -98,9 +106,12 @@ func _process(delta: float) -> void:
 
 func change_viewmode(new_mode: int) -> void:
     if new_mode == modes.EDITMODE:
+        camera.projection = 1 # orthogonal projection
+        camera.size = camera_default_zoom_orthogonal
         root_visual.hide()
         $root_to_plane.hide()
     else:
+        camera.projection = 0 # perspective projection
         root_visual.show()
         $root_to_plane.show()
     if current_mode != modes.EDITMODE && new_mode == modes.EDITMODE:
@@ -117,3 +128,12 @@ func change_viewmode(new_mode: int) -> void:
         $root_to_plane.show()
     current_mode = new_mode
     print("Mode is now ", current_mode)
+    
+    
+func get_mouse_pos():
+    # Thanks Okan Ozdemir!
+    # https://forum.godotengine.org/t/how-to-get-3d-position-of-the-mouse-cursor/28741/2
+    var position2D : Vector2 = get_viewport().get_mouse_position()
+    var dropPlane := Plane.PLANE_XZ
+    var position3D = dropPlane.intersects_ray(camera.project_ray_origin(position2D),camera.project_ray_normal(position2D))
+    return position3D

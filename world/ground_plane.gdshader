@@ -1,3 +1,9 @@
+/* Grid shader from Ben Golus
+ * https://bgolus.medium.com/the-best-darn-grid-shader-yet-727f9278b9d8
+ * I couldn't implement the whole thing bc ddx and ddy doesn't exist in gdshader(???)
+ * so there's a lot of moire-ing but it looks alright
+ */
+
 shader_type spatial;
 render_mode cull_disabled, unshaded;
 

@@ -1,12 +1,12 @@
-[gd_scene load_steps=13 format=3 uid="uid://b5qujrxt1wjw2"]
+[gd_scene load_steps=17 format=3 uid="uid://b5qujrxt1wjw2"]
 
 [ext_resource type="Script" uid="uid://bdli0w6t1cn1c" path="res://main.gd" id="1_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://ubba06bqytni" path="res://world/camera_controller.tscn" id="3_1bvp3"]
 [ext_resource type="Shader" uid="uid://da5mbhx5fdo6l" path="res://world/ground_plane.gdshader" id="3_h2yge"]
 [ext_resource type="Script" uid="uid://dtgyci3hw5cc6" path="res://world/ground_plane.gd" id="3_lquwl"]
 [ext_resource type="Script" uid="uid://g22gf4uoho3q" path="res://mesh_instance_3d.gd" id="5_lquwl"]
-
-[sub_resource type="BoxMesh" id="BoxMesh_7dm0k"]
+[ext_resource type="Theme" uid="uid://e2k1xj44t71v" path="res://ui_theme.tres" id="6_7mycd"]
+[ext_resource type="Script" uid="uid://ddh846jthhq8q" path="res://fps.gd" id="7_272bh"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_n3ksy"]
 render_priority = 0
@@ -17,6 +17,19 @@ shader_parameter/fine_width = Vector2(1e-07, 1e-07)
 [sub_resource type="PlaneMesh" id="PlaneMesh_1bvp3"]
 material = SubResource("ShaderMaterial_n3ksy")
 size = Vector2(1000, 1000)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7mycd"]
+render_priority = 1
+transparency = 1
+shading_mode = 0
+albedo_color = Color(1, 1, 1, 0.498039)
+
+[sub_resource type="SphereMesh" id="SphereMesh_272bh"]
+material = SubResource("StandardMaterial3D_7mycd")
+radius = 0.05
+height = 0.1
+radial_segments = 16
+rings = 8
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_h2yge"]
 
@@ -30,32 +43,76 @@ font = SubResource("SystemFont_lquwl")
 text = "+X"
 font = SubResource("SystemFont_lquwl")
 
+[sub_resource type="BoxMesh" id="BoxMesh_7dm0k"]
+
 [node name="Main" type="Node3D"]
 script = ExtResource("1_0xm2m")
 
-[node name="DefaultCube" type="MeshInstance3D" parent="."]
-visible = false
-mesh = SubResource("BoxMesh_7dm0k")
+[node name="World" type="Node3D" parent="."]
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.871821, -0.473133, 0.126776, 0, 0.258819, 0.965926, -0.489824, -0.842115, 0.225644, 0, 5.43004, 0)
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="World"]
+transform = Transform3D(0.871821, -0.473134, 0.126776, 0, 0.258819, 0.965926, -0.489824, -0.842115, 0.225644, 0, 5.43004, 0)
 
-[node name="GroundPlane" type="MeshInstance3D" parent="."]
+[node name="GroundPlane" type="MeshInstance3D" parent="World"]
 mesh = SubResource("PlaneMesh_1bvp3")
+skeleton = NodePath("../..")
 script = ExtResource("3_lquwl")
 
-[node name="CameraController" parent="." instance=ExtResource("3_1bvp3")]
+[node name="CameraController" parent="World" instance=ExtResource("3_1bvp3")]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="VertexPreview" type="MeshInstance3D" parent="World"]
+mesh = SubResource("SphereMesh_272bh")
+
+[node name="Debug Stuff" type="Node3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Debug Stuff"]
 visible = false
 mesh = SubResource("ArrayMesh_h2yge")
+skeleton = NodePath("../..")
 script = ExtResource("5_lquwl")
 
-[node name="y label" type="MeshInstance3D" parent="."]
+[node name="y label" type="MeshInstance3D" parent="Debug Stuff"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1)
 mesh = SubResource("TextMesh_lquwl")
+skeleton = NodePath("../..")
 
-[node name="x label" type="MeshInstance3D" parent="."]
+[node name="x label" type="MeshInstance3D" parent="Debug Stuff"]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 1, 0, 0)
 mesh = SubResource("TextMesh_7mycd")
 skeleton = NodePath("../y label")
+
+[node name="DefaultCube" type="MeshInstance3D" parent="Debug Stuff"]
+visible = false
+mesh = SubResource("BoxMesh_7dm0k")
+skeleton = NodePath("../..")
+
+[node name="Panel" type="Panel" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -93.0
+offset_bottom = 55.0
+grow_horizontal = 0
+theme = ExtResource("6_7mycd")
+
+[node name="SnappingPanel" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -122.5
+offset_top = -41.5
+offset_right = 122.5
+offset_bottom = 41.5
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="FPS" type="Label" parent="Panel/SnappingPanel"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 6
+script = ExtResource("7_272bh")
