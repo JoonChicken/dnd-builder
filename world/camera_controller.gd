@@ -9,28 +9,45 @@ var root_visual
 
 @export var meterstick_material : ShaderMaterial
 
-var velocity := Vector3.ZERO
-@export var camera_max_speed := 8.0    # how fast camera translates when pressing WASDEQ
-@export var camera_rotate_mult := 0.003    # mouse movement in viewport (pixels) to rotation of camera (radians)
-@export var camera_zoom_mult := 1.0
+@export var camera_target_pos := Vector3.ZERO
+var target_y_save : float # for up down snapping movement
+var snap_vertically := false
+@export var camera_drag := 10.0
+var camera_max_speed := 4.0    # how fast camera translates when pressing WASDEQ
+var camera_rotate_mult := 0.003    # mouse movement in viewport (pixels) to rotation of camera (radians)
+var camera_zoom_mult := 1.0
 var camera_default_zoom_perspective : float  # how far away the camera is from its origin (in meters)
 var camera_default_zoom_orthogonal : float
 var prev_mouse_pos := Vector2.ZERO
 
 var viewmode_root_rotation_save : Vector3
 var viewmode_root_height_save : float
-var viewmode_camera_zoom_save : float
+
+@onready var stencil_viewport : SubViewport = $CameraRoot/SubViewport
+@onready var stencil_cam : Camera3D = $CameraRoot/SubViewport/StencilCam
 
 
 func _ready() -> void:
     camera_root = $CameraRoot
     camera = $CameraRoot/OrbitCam
-    root_visual = $CameraRoot/root_visual
+    root_visual = $CameraRoot/RootVisual
     camera_default_zoom_perspective = camera.position.z
     camera_default_zoom_orthogonal = 5.0
 
 
-func _process(delta: float) -> void: 
+func _process(delta: float) -> void:
+    var viewport := get_viewport()
+    var current_camera := viewport.get_camera_3d()
+
+    if stencil_viewport.size != viewport.size:
+        stencil_viewport.size = viewport.size
+
+    if current_camera:
+        stencil_cam.fov = current_camera.fov
+        stencil_cam.size = current_camera.size
+        stencil_cam.projection = current_camera.projection
+        stencil_cam.global_transform = current_camera.global_transform
+    
     var direction := Vector3.ZERO
     var target_speed = camera_max_speed * (3 if Input.is_action_pressed("shift") else 1)
     
@@ -47,21 +64,19 @@ func _process(delta: float) -> void:
     if Input.is_action_pressed("camera_down"):
         direction.y -= 1
     if Input.is_action_just_pressed("zoom_in"):
+        camera_zoom_mult *= 0.8
         if current_mode == modes.EDITMODE:
             camera.size *= 0.8 # orthogonal stuff
-        else:
-            camera_zoom_mult *= 0.8
-            camera.position.z = camera_zoom_mult * camera_default_zoom_perspective
-            root_visual.mesh.radius = 0.01 * camera_zoom_mult
-            root_visual.mesh.height = 0.02 * camera_zoom_mult
+        camera.position.z = camera_zoom_mult * camera_default_zoom_perspective
+        root_visual.mesh.radius = 0.01 * camera_zoom_mult
+        root_visual.mesh.height = 0.02 * camera_zoom_mult
     if Input.is_action_just_pressed("zoom_out"):
+        camera_zoom_mult *= 1.25
         if current_mode == modes.EDITMODE:
             camera.size *= 1.25
-        else:
-            camera_zoom_mult *= 1.25
-            camera.position.z = camera_zoom_mult * camera_default_zoom_perspective
-            root_visual.mesh.radius = 0.01 * camera_zoom_mult
-            root_visual.mesh.height = 0.02 * camera_zoom_mult
+        camera.position.z = camera_zoom_mult * camera_default_zoom_perspective
+        root_visual.mesh.radius = 0.01 * camera_zoom_mult
+        root_visual.mesh.height = 0.02 * camera_zoom_mult
         
     if current_mode != modes.EDITMODE:
         if Input.is_action_just_pressed("camera_orbit"):
@@ -74,20 +89,29 @@ func _process(delta: float) -> void:
         
     if direction != Vector3.ZERO:
         direction = direction.normalized().rotated(Vector3.UP, camera_root.rotation.y)
-        velocity += direction * 80 * delta
-    else:
-        velocity -= velocity * 12 * delta
-    velocity = velocity.limit_length(target_speed)
+        camera_target_pos += direction * camera_zoom_mult * target_speed * delta;
     
+    if Input.is_action_just_pressed("snapping"):
+        target_y_save = camera_target_pos.y
     if Input.is_action_pressed("snapping"):
-        velocity.y = 0.0
         if direction.y != 0.0 && (Input.is_action_just_pressed("camera_up") || Input.is_action_just_pressed("camera_down")):
+            var target_pos_modifier := 0.0
+            if snap_vertically:
+                target_pos_modifier += 0.49
             if direction.y > 0.0:
-                camera_root.position.y = ceil(camera_root.position.y + 0.000001)
+                target_y_save = ceil(camera_root.position.y + target_pos_modifier + 0.001)
             else:
-                camera_root.position.y = floor(camera_root.position.y - 0.000001)
-    else:
-        camera_root.position += velocity * (1 + (camera_zoom_mult - 1) * 0.7) * 0.6 * delta
+                target_y_save = floor(camera_root.position.y - target_pos_modifier - 0.001)
+            snap_vertically = true
+        camera_target_pos.y = target_y_save
+    if snap_vertically:
+        if abs(camera_root.position.y - target_y_save) < 0.0001:
+            snap_vertically = false
+    
+    $target_visual.position = camera_target_pos
+    
+    var velocity_actual = (camera_target_pos - camera_root.position) * camera_drag
+    camera_root.position += velocity_actual * delta
     
     var root_pos = camera_root.global_position
     var st = SurfaceTool.new()
@@ -101,7 +125,7 @@ func _process(delta: float) -> void:
     st.set_material(meterstick_material)
     st.add_vertex(root_pos)
     var linemesh = st.commit()
-    $root_to_plane.mesh = linemesh
+    $Meterstick.mesh = linemesh
 
 
 func change_viewmode(new_mode: int) -> void:
@@ -109,25 +133,24 @@ func change_viewmode(new_mode: int) -> void:
         camera.projection = 1 # orthogonal projection
         camera.size = camera_default_zoom_orthogonal
         root_visual.hide()
-        $root_to_plane.hide()
+        $Meterstick.hide()
     else:
         camera.projection = 0 # perspective projection
         root_visual.show()
-        $root_to_plane.show()
+        $Meterstick.show()
     if current_mode != modes.EDITMODE && new_mode == modes.EDITMODE:
         viewmode_root_rotation_save = camera_root.rotation
         viewmode_root_height_save = camera_root.position.y
         camera_root.rotation = Vector3(-PI/2, 0.0, 0.0)
-        camera_root.position.y = 0.0
+        camera.size = camera_default_zoom_orthogonal * camera_zoom_mult
         root_visual.hide()
-        $root_to_plane.hide()
+        $Meterstick.hide()
     elif current_mode == modes.EDITMODE && new_mode != modes.EDITMODE:
         camera_root.rotation = viewmode_root_rotation_save
         camera_root.position.y = viewmode_root_height_save
         root_visual.show()
-        $root_to_plane.show()
+        $Meterstick.show()
     current_mode = new_mode
-    print("Mode is now ", current_mode)
     
     
 func get_mouse_pos():
