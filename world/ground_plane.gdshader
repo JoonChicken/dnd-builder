@@ -7,6 +7,7 @@
 shader_type spatial;
 render_mode cull_disabled, unshaded;
 
+uniform float opacity = 1.0;
 uniform float gridlines_in_mesh = 1000.0;
 uniform vec2 fine_width = vec2(0.0000001, 0.0000001);
 
@@ -50,5 +51,5 @@ void fragment() {
         alpha = grid_value * 0.5;
     }
     ALBEDO.rgb = clamp(color, vec3(0), vec3(1));
-	ALPHA = clamp(alpha - circle(uv, 0.2, 0.3), 0, 1);
+	ALPHA = clamp(alpha - circle(uv, 0.2, 0.3), 0, 1) * opacity;
 }
