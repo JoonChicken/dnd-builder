@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://bm1lja1hfm3l8"]
+
+[ext_resource type="Script" uid="uid://tx3rnm85tdnt" path="res://sector.gd" id="1_fgfn7"]
+
+[node name="Sector" type="Area3D"]
+script = ExtResource("1_fgfn7")
+base_vertices = [Vector2(0, 1), Vector2(1, 1), Vector2(1, 0), Vector2(0, 0)]
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+layers = 33
+skeleton = NodePath("")
+
+[connection signal="input_event" from="." to="." method="_on_input_event"]

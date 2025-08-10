@@ -3,6 +3,8 @@ extends Node3D
 enum modes {VIEWMODE, EDITMODE, PLAYMODE}
 var current_mode := modes.VIEWMODE
 
+var sectors : Array
+
 var snap : bool
 var mouse_global_coords
 var vertex_preview

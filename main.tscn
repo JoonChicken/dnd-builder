@@ -5,12 +5,13 @@
 [ext_resource type="Shader" uid="uid://da5mbhx5fdo6l" path="res://world/ground_plane.gdshader" id="3_h2yge"]
 [ext_resource type="Script" uid="uid://dtgyci3hw5cc6" path="res://world/ground_plane.gd" id="3_lquwl"]
 [ext_resource type="Script" uid="uid://g22gf4uoho3q" path="res://mesh_instance_3d.gd" id="5_lquwl"]
-[ext_resource type="Theme" uid="uid://e2k1xj44t71v" path="res://ui_theme.tres" id="6_7mycd"]
+[ext_resource type="PackedScene" uid="uid://bm1lja1hfm3l8" path="res://sector.tscn" id="7_5vw27"]
 [ext_resource type="Script" uid="uid://ddh846jthhq8q" path="res://fps.gd" id="7_272bh"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_n3ksy"]
 render_priority = 0
 shader = ExtResource("3_h2yge")
+shader_parameter/opacity = 1.0
 shader_parameter/gridlines_in_mesh = 1000.0
 shader_parameter/fine_width = Vector2(1e-07, 1e-07)
 
@@ -64,9 +65,9 @@ script = ExtResource("3_lquwl")
 mesh = SubResource("SphereMesh_272bh")
 
 [node name="Debug Stuff" type="Node3D" parent="."]
+visible = false
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Debug Stuff"]
-visible = false
 mesh = SubResource("ArrayMesh_h2yge")
 skeleton = NodePath("../..")
 script = ExtResource("5_lquwl")
@@ -82,37 +83,22 @@ mesh = SubResource("TextMesh_7mycd")
 skeleton = NodePath("../y label")
 
 [node name="DefaultCube" type="MeshInstance3D" parent="Debug Stuff"]
-visible = false
+layers = 32
 mesh = SubResource("BoxMesh_7dm0k")
 skeleton = NodePath("../..")
 
-[node name="Panel" type="Panel" parent="."]
+[node name="FPS" type="Label" parent="."]
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -93.0
-offset_bottom = 55.0
+offset_left = -6.0
+offset_top = 1.0
+offset_right = -5.0
+offset_bottom = 31.0
 grow_horizontal = 0
-theme = ExtResource("6_7mycd")
-
-[node name="SnappingPanel" type="VBoxContainer" parent="Panel"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -122.5
-offset_top = -41.5
-offset_right = 122.5
-offset_bottom = 41.5
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="FPS" type="Label" parent="Panel/SnappingPanel"]
-layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 6
+horizontal_alignment = 2
 script = ExtResource("7_272bh")
+
+[node name="Sector" parent="." instance=ExtResource("7_5vw27")]
