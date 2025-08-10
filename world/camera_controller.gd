@@ -36,21 +36,20 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+    # setup fake stencil buffer for selection outline
     var viewport := get_viewport()
     var current_camera := viewport.get_camera_3d()
-
     if stencil_viewport.size != viewport.size:
         stencil_viewport.size = viewport.size
-
     if current_camera:
         stencil_cam.fov = current_camera.fov
         stencil_cam.size = current_camera.size
         stencil_cam.projection = current_camera.projection
         stencil_cam.global_transform = current_camera.global_transform
     
+    # get movement from WASDQE
     var direction := Vector3.ZERO
     var target_speed = camera_max_speed * (3 if Input.is_action_pressed("shift") else 1)
-    
     if Input.is_action_pressed("camera_forward"):
         direction.z -= 1
     if Input.is_action_pressed("camera_back"):
@@ -78,15 +77,6 @@ func _process(delta: float) -> void:
         root_visual.mesh.radius = 0.01 * camera_zoom_mult
         root_visual.mesh.height = 0.02 * camera_zoom_mult
         
-    if current_mode != modes.EDITMODE:
-        if Input.is_action_just_pressed("camera_orbit"):
-            prev_mouse_pos = get_viewport().get_mouse_position()
-        if Input.is_action_pressed("camera_orbit"):
-            var curr_mouse_pos := get_viewport().get_mouse_position()
-            camera_root.rotation.y -= (curr_mouse_pos.x - prev_mouse_pos.x) * camera_rotate_mult
-            camera_root.rotation.x -= clamp((curr_mouse_pos.y - prev_mouse_pos.y) * camera_rotate_mult, -PI/2, PI/2)
-            prev_mouse_pos = curr_mouse_pos
-        
     if direction != Vector3.ZERO:
         direction = direction.normalized().rotated(Vector3.UP, camera_root.rotation.y)
         camera_target_pos += direction * camera_zoom_mult * target_speed * delta;
@@ -108,11 +98,12 @@ func _process(delta: float) -> void:
         if abs(camera_root.position.y - target_y_save) < 0.0001:
             snap_vertically = false
     
-    $target_visual.position = camera_target_pos
+    $target_visual.position = camera_target_pos # DEBUG
     
     var velocity_actual = (camera_target_pos - camera_root.position) * camera_drag
     camera_root.position += velocity_actual * delta
     
+    # make meterstick to represent distance of camera above the ground plane
     var root_pos = camera_root.global_position
     var st = SurfaceTool.new()
     st.begin(Mesh.PRIMITIVE_LINES)
@@ -126,6 +117,16 @@ func _process(delta: float) -> void:
     st.add_vertex(root_pos)
     var linemesh = st.commit()
     $Meterstick.mesh = linemesh
+    
+    # get rotation of camera from mouse pos
+    if current_mode != modes.EDITMODE:
+        if Input.is_action_just_pressed("camera_orbit"):
+            prev_mouse_pos = get_viewport().get_mouse_position()
+        if Input.is_action_pressed("camera_orbit"):
+            var curr_mouse_pos := get_viewport().get_mouse_position()
+            camera_root.rotation.y -= (curr_mouse_pos.x - prev_mouse_pos.x) * camera_rotate_mult
+            camera_root.rotation.x -= clamp((curr_mouse_pos.y - prev_mouse_pos.y) * camera_rotate_mult, -PI/2, PI/2)
+            prev_mouse_pos = curr_mouse_pos
 
 
 func change_viewmode(new_mode: int) -> void:

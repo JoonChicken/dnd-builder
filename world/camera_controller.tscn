@@ -59,7 +59,6 @@ fov = 50.0
 [node name="SubViewport" type="SubViewport" parent="CameraRoot"]
 transparent_bg = true
 handle_input_locally = false
-msaa_2d = 1
 msaa_3d = 1
 gui_disable_input = true
 canvas_cull_mask = 4294966304

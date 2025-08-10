@@ -25,7 +25,7 @@ func change_viewmode() -> void:
         vertex_preview.hide()
 
 
-func _process(delta: float) -> void:    
+func _process(_delta: float) -> void:    
     if Input.is_action_just_pressed("change_viewmode"):
         change_viewmode()
     if current_mode == modes.EDITMODE:
