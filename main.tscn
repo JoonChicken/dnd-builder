@@ -1,12 +1,12 @@
-[gd_scene load_steps=17 format=3 uid="uid://b5qujrxt1wjw2"]
+[gd_scene load_steps=16 format=3 uid="uid://b5qujrxt1wjw2"]
 
 [ext_resource type="Script" uid="uid://bdli0w6t1cn1c" path="res://main.gd" id="1_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://ubba06bqytni" path="res://world/camera_controller.tscn" id="3_1bvp3"]
 [ext_resource type="Shader" uid="uid://da5mbhx5fdo6l" path="res://world/ground_plane.gdshader" id="3_h2yge"]
 [ext_resource type="Script" uid="uid://dtgyci3hw5cc6" path="res://world/ground_plane.gd" id="3_lquwl"]
-[ext_resource type="Script" uid="uid://g22gf4uoho3q" path="res://mesh_instance_3d.gd" id="5_lquwl"]
 [ext_resource type="PackedScene" uid="uid://bm1lja1hfm3l8" path="res://sector.tscn" id="7_5vw27"]
 [ext_resource type="Script" uid="uid://ddh846jthhq8q" path="res://fps.gd" id="7_272bh"]
+[ext_resource type="Theme" uid="uid://cd4rbnibqo8om" path="res://ui_main.tres" id="8_5vw27"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_n3ksy"]
 render_priority = 0
@@ -32,8 +32,6 @@ height = 0.1
 radial_segments = 16
 rings = 8
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_h2yge"]
-
 [sub_resource type="SystemFont" id="SystemFont_lquwl"]
 
 [sub_resource type="TextMesh" id="TextMesh_lquwl"]
@@ -46,12 +44,19 @@ font = SubResource("SystemFont_lquwl")
 
 [sub_resource type="BoxMesh" id="BoxMesh_7dm0k"]
 
-[node name="Main" type="Node3D"]
+[node name="Main" type="Node3D" node_paths=PackedStringArray("vertex_preview", "topmenu", "sidemenu", "inspector", "bottombar", "current_mode_label", "current_tool_label")]
 script = ExtResource("1_0xm2m")
+vertex_preview = NodePath("World/VertexPreview")
+topmenu = NodePath("UI/TopMenu")
+sidemenu = NodePath("UI/SideMenu")
+inspector = NodePath("UI/Inspector")
+bottombar = NodePath("UI/BottomBar")
+current_mode_label = NodePath("UI/BottomBar/BottomLeft/CurrentMode")
+current_tool_label = NodePath("UI/BottomBar/BottomLeft/CurrentTool")
 
 [node name="World" type="Node3D" parent="."]
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="World"]
+[node name="Sun" type="DirectionalLight3D" parent="World"]
 transform = Transform3D(0.871821, -0.473134, 0.126776, 0, 0.258819, 0.965926, -0.489824, -0.842115, 0.225644, 0, 5.43004, 0)
 
 [node name="GroundPlane" type="MeshInstance3D" parent="World"]
@@ -66,11 +71,6 @@ mesh = SubResource("SphereMesh_272bh")
 
 [node name="Debug Stuff" type="Node3D" parent="."]
 visible = false
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Debug Stuff"]
-mesh = SubResource("ArrayMesh_h2yge")
-skeleton = NodePath("../..")
-script = ExtResource("5_lquwl")
 
 [node name="y label" type="MeshInstance3D" parent="Debug Stuff"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1)
@@ -87,18 +87,194 @@ layers = 32
 mesh = SubResource("BoxMesh_7dm0k")
 skeleton = NodePath("../..")
 
-[node name="FPS" type="Label" parent="."]
+[node name="Sector" parent="." instance=ExtResource("7_5vw27")]
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+theme = ExtResource("8_5vw27")
+
+[node name="TopMenu" type="Panel" parent="UI"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 33.0
+grow_horizontal = 2
+theme = ExtResource("8_5vw27")
+
+[node name="TopMenuSeparator" type="HBoxContainer" parent="UI/TopMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="VSeparator" type="VSeparator" parent="UI/TopMenu/TopMenuSeparator"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/TopMenu/TopMenuSeparator"]
+layout_mode = 2
+text = "D&D Builder"
+
+[node name="EssentialControls" type="HBoxContainer" parent="UI/TopMenu/TopMenuSeparator"]
+layout_mode = 2
+size_flags_horizontal = 2
+
+[node name="VSeparator" type="VSeparator" parent="UI/TopMenu/TopMenuSeparator/EssentialControls"]
+layout_mode = 2
+
+[node name="NewFile" type="Button" parent="UI/TopMenu/TopMenuSeparator/EssentialControls"]
+layout_mode = 2
+text = "New"
+
+[node name="OpenFile" type="Button" parent="UI/TopMenu/TopMenuSeparator/EssentialControls"]
+layout_mode = 2
+text = "Open"
+
+[node name="Save" type="Button" parent="UI/TopMenu/TopMenuSeparator/EssentialControls"]
+layout_mode = 2
+text = "Save"
+
+[node name="SaveAs" type="Button" parent="UI/TopMenu/TopMenuSeparator/EssentialControls"]
+layout_mode = 2
+text = "Save As"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="UI/TopMenu"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -16.5
+offset_top = -16.5
+offset_right = 16.5
+offset_bottom = 16.5
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 6
+
+[node name="PlayButton" type="Button" parent="UI/TopMenu/HBoxContainer2"]
+layout_mode = 2
+text = "Play"
+
+[node name="SideMenu" type="Panel" parent="UI"]
+layout_mode = 1
+offset_top = 59.0
+offset_right = 88.0
+offset_bottom = 323.0
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/SideMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("8_5vw27")
+
+[node name="EditModeControls" type="VBoxContainer" parent="UI/SideMenu/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SelectButton" type="Button" parent="UI/SideMenu/MarginContainer/EditModeControls"]
+layout_mode = 2
+size_flags_vertical = 3
+text = "Select"
+
+[node name="SectorButton" type="Button" parent="UI/SideMenu/MarginContainer/EditModeControls"]
+layout_mode = 2
+size_flags_vertical = 3
+text = "Sector"
+
+[node name="Inspector" type="Panel" parent="UI"]
+layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -6.0
-offset_top = 1.0
-offset_right = -5.0
-offset_bottom = 31.0
+offset_left = -296.0
+offset_top = 51.0
+offset_right = -16.0
+offset_bottom = 441.0
 grow_horizontal = 0
-size_flags_horizontal = 4
+theme = ExtResource("8_5vw27")
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/Inspector"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/Inspector/MarginContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/Inspector/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Inspector"
+
+[node name="BottomBar" type="Panel" parent="UI"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -25.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="BottomLeft" type="HBoxContainer" parent="UI/BottomBar"]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+grow_vertical = 2
+
+[node name="VSeparator2" type="VSeparator" parent="UI/BottomBar/BottomLeft"]
+layout_mode = 2
+
+[node name="CurrentMode" type="Label" parent="UI/BottomBar/BottomLeft"]
+custom_minimum_size = Vector2(95, 0)
+layout_mode = 2
+text = "VIEW MODE"
+
+[node name="VSeparator" type="VSeparator" parent="UI/BottomBar/BottomLeft"]
+layout_mode = 2
+
+[node name="CurrentTool" type="Label" parent="UI/BottomBar/BottomLeft"]
+layout_mode = 2
+text = "SELECTION TOOL"
+
+[node name="BottomRight" type="HBoxContainer" parent="UI/BottomBar"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -40.0
+offset_top = -20.0
+offset_bottom = 20.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="FPS" type="Label" parent="UI/BottomBar/BottomRight"]
+layout_mode = 2
+size_flags_horizontal = 8
 size_flags_vertical = 6
+theme = ExtResource("8_5vw27")
 horizontal_alignment = 2
 script = ExtResource("7_272bh")
 
-[node name="Sector" parent="." instance=ExtResource("7_5vw27")]
+[node name="VSeparator" type="VSeparator" parent="UI/BottomBar/BottomRight"]
+layout_mode = 2
+
+[connection signal="button_up" from="UI/SideMenu/MarginContainer/EditModeControls/SelectButton" to="." method="_change_tool_to_select"]
+[connection signal="button_up" from="UI/SideMenu/MarginContainer/EditModeControls/SectorButton" to="." method="_change_tool_to_new_sector"]

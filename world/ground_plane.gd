@@ -8,4 +8,5 @@ func change_viewmode(new_mode: int) -> void:
         mesh.material.shader_paramter.opacity = 0.5
     elif current_mode == modes.PLAYMODE && new_mode != modes.PLAYMODE:
         mesh.material.shader_paramter.opacity = 1.0
+    @warning_ignore("int_as_enum_without_cast")
     current_mode = new_mode
