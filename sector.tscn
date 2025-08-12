@@ -2,12 +2,16 @@
 
 [ext_resource type="Script" uid="uid://tx3rnm85tdnt" path="res://sector.gd" id="1_fgfn7"]
 
-[node name="Sector" type="Area3D"]
+[node name="Sector" type="Area3D" node_paths=PackedStringArray("mesh_node", "collider_node")]
 script = ExtResource("1_fgfn7")
-base_vertices = [Vector2(0, 1), Vector2(1, 1), Vector2(1, 0), Vector2(0, 0)]
+base_vertices = [Vector2(0, 1), Vector2(1, 1), Vector2(1.5, 1.5), Vector2(1, 0), Vector2(0, 0)]
+mesh_node = NodePath("Mesh")
+collider_node = NodePath("Collider")
 
 [node name="Mesh" type="MeshInstance3D" parent="."]
 layers = 33
 skeleton = NodePath("")
+
+[node name="Collider" type="CollisionShape3D" parent="."]
 
 [connection signal="input_event" from="." to="." method="_on_input_event"]
