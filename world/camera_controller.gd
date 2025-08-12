@@ -19,6 +19,7 @@ var camera_zoom_mult := 1.0
 var camera_default_zoom_perspective : float  # how far away the camera is from its origin (in meters)
 var camera_default_zoom_orthogonal : float
 var prev_mouse_pos := Vector2.ZERO
+var prev_global_mouse_pos := Vector3.ZERO
 
 var viewmode_root_rotation_save : Vector3
 var viewmode_root_height_save : float
@@ -62,20 +63,6 @@ func _process(delta: float) -> void:
         direction.y += 1
     if Input.is_action_pressed("camera_down"):
         direction.y -= 1
-    if Input.is_action_just_pressed("zoom_in"):
-        camera_zoom_mult *= 0.8
-        if current_mode == modes.EDITMODE:
-            camera.size *= 0.8 # orthogonal stuff
-        camera.position.z = camera_zoom_mult * camera_default_zoom_perspective
-        root_visual.mesh.radius = 0.01 * camera_zoom_mult
-        root_visual.mesh.height = 0.02 * camera_zoom_mult
-    if Input.is_action_just_pressed("zoom_out"):
-        camera_zoom_mult *= 1.25
-        if current_mode == modes.EDITMODE:
-            camera.size *= 1.25
-        camera.position.z = camera_zoom_mult * camera_default_zoom_perspective
-        root_visual.mesh.radius = 0.01 * camera_zoom_mult
-        root_visual.mesh.height = 0.02 * camera_zoom_mult
         
     if direction != Vector3.ZERO:
         direction = direction.normalized().rotated(Vector3.UP, camera_root.rotation.y)
@@ -97,6 +84,48 @@ func _process(delta: float) -> void:
     if snap_vertically:
         if abs(camera_root.position.y - target_y_save) < 0.0001:
             snap_vertically = false
+            
+    # zooming - if in edit mode, then zoom toward mouse cursor
+    var zoomed := false
+    if Input.is_action_just_pressed("zoom_in"):
+        zoomed = true
+        prev_global_mouse_pos = get_mouse_pos()
+        camera_zoom_mult *= 0.8
+        if current_mode == modes.EDITMODE:
+            camera.size *= 0.8 # orthogonal stuff
+        camera.position.z = camera_zoom_mult * camera_default_zoom_perspective
+        root_visual.mesh.radius = 0.01 * camera_zoom_mult
+        root_visual.mesh.height = 0.02 * camera_zoom_mult
+    if Input.is_action_just_pressed("zoom_out"):
+        zoomed = true
+        prev_global_mouse_pos = get_mouse_pos()
+        camera_zoom_mult *= 1.25
+        if current_mode == modes.EDITMODE:
+            camera.size *= 1.25
+        camera.position.z = camera_zoom_mult * camera_default_zoom_perspective
+        root_visual.mesh.radius = 0.01 * camera_zoom_mult
+        root_visual.mesh.height = 0.02 * camera_zoom_mult      
+        
+    # get rotation of camera from mouse pos
+    # OR if in edit mode, translate the camera
+    if Input.is_action_just_pressed("camera_orbit"):
+        if current_mode == modes.EDITMODE:
+            prev_global_mouse_pos = get_mouse_pos()
+        else:
+            prev_mouse_pos = get_viewport().get_mouse_position()
+    if Input.is_action_pressed("camera_orbit"):
+        if current_mode == modes.EDITMODE:
+            camera_target_pos += prev_global_mouse_pos - get_mouse_pos()
+            camera_root.position = camera_target_pos
+        else:
+            var curr_mouse_pos := get_viewport().get_mouse_position()
+            camera_root.rotation.y -= (curr_mouse_pos.x - prev_mouse_pos.x) * camera_rotate_mult
+            camera_root.rotation.x -= clamp((curr_mouse_pos.y - prev_mouse_pos.y) * camera_rotate_mult, -PI/2, PI/2)
+            prev_mouse_pos = curr_mouse_pos  
+    
+    if current_mode == modes.EDITMODE and zoomed:
+        camera_target_pos += prev_global_mouse_pos - get_mouse_pos()
+        camera_root.position = camera_target_pos
     
     $target_visual.position = camera_target_pos # DEBUG
     
@@ -117,17 +146,7 @@ func _process(delta: float) -> void:
     st.add_vertex(root_pos)
     var linemesh = st.commit()
     $Meterstick.mesh = linemesh
-    
-    # get rotation of camera from mouse pos
-    if current_mode != modes.EDITMODE:
-        if Input.is_action_just_pressed("camera_orbit"):
-            prev_mouse_pos = get_viewport().get_mouse_position()
-        if Input.is_action_pressed("camera_orbit"):
-            var curr_mouse_pos := get_viewport().get_mouse_position()
-            camera_root.rotation.y -= (curr_mouse_pos.x - prev_mouse_pos.x) * camera_rotate_mult
-            camera_root.rotation.x -= clamp((curr_mouse_pos.y - prev_mouse_pos.y) * camera_rotate_mult, -PI/2, PI/2)
-            prev_mouse_pos = curr_mouse_pos
-
+            
 
 func change_viewmode(new_mode: int) -> void:
     if new_mode == modes.EDITMODE:
@@ -151,6 +170,7 @@ func change_viewmode(new_mode: int) -> void:
         camera_root.position.y = viewmode_root_height_save
         root_visual.show()
         $Meterstick.show()
+    @warning_ignore("int_as_enum_without_cast")
     current_mode = new_mode
     
     
