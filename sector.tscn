@@ -4,7 +4,6 @@
 
 [node name="Sector" type="Area3D" node_paths=PackedStringArray("mesh_node", "collider_node")]
 script = ExtResource("1_fgfn7")
-base_vertices = [Vector2(0, 1), Vector2(1, 1), Vector2(1.5, 1.5), Vector2(1, 0), Vector2(0, 0)]
 mesh_node = NodePath("Mesh")
 collider_node = NodePath("Collider")
 

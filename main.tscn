@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://b5qujrxt1wjw2"]
+[gd_scene load_steps=26 format=3 uid="uid://b5qujrxt1wjw2"]
 
 [ext_resource type="Script" uid="uid://bdli0w6t1cn1c" path="res://main.gd" id="1_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://ubba06bqytni" path="res://world/camera_controller.tscn" id="3_1bvp3"]
@@ -44,9 +44,51 @@ font = SubResource("SystemFont_lquwl")
 
 [sub_resource type="BoxMesh" id="BoxMesh_7dm0k"]
 
+[sub_resource type="InputEventKey" id="InputEventKey_272bh"]
+device = -1
+command_or_control_autoremap = true
+keycode = 78
+
+[sub_resource type="Shortcut" id="Shortcut_5vw27"]
+events = [SubResource("InputEventKey_272bh")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_kek77"]
+device = -1
+command_or_control_autoremap = true
+keycode = 79
+
+[sub_resource type="Shortcut" id="Shortcut_4c57u"]
+events = [SubResource("InputEventKey_kek77")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_efxa6"]
+device = -1
+command_or_control_autoremap = true
+keycode = 83
+
+[sub_resource type="Shortcut" id="Shortcut_dg77c"]
+events = [SubResource("InputEventKey_efxa6")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_ycdy4"]
+device = -1
+command_or_control_autoremap = true
+shift_pressed = true
+keycode = 83
+
+[sub_resource type="Shortcut" id="Shortcut_w48qg"]
+events = [SubResource("InputEventKey_ycdy4")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_vivmo"]
+device = -1
+command_or_control_autoremap = true
+keycode = 80
+
+[sub_resource type="Shortcut" id="Shortcut_2cqfq"]
+events = [SubResource("InputEventKey_vivmo")]
+
 [node name="Main" type="Node3D" node_paths=PackedStringArray("vertex_preview", "topmenu", "sidemenu", "inspector", "bottombar", "current_mode_label", "current_tool_label")]
 script = ExtResource("1_0xm2m")
 vertex_preview = NodePath("World/VertexPreview")
+sector_scene = ExtResource("7_5vw27")
 topmenu = NodePath("UI/TopMenu")
 sidemenu = NodePath("UI/SideMenu")
 inspector = NodePath("UI/Inspector")
@@ -83,7 +125,7 @@ mesh = SubResource("TextMesh_7mycd")
 skeleton = NodePath("../y label")
 
 [node name="DefaultCube" type="MeshInstance3D" parent="Debug Stuff"]
-layers = 32
+layers = 0
 mesh = SubResource("BoxMesh_7dm0k")
 skeleton = NodePath("../..")
 
@@ -132,18 +174,22 @@ layout_mode = 2
 
 [node name="NewFile" type="Button" parent="UI/TopMenu/TopMenuSeparator/EssentialControls"]
 layout_mode = 2
+shortcut = SubResource("Shortcut_5vw27")
 text = "New"
 
 [node name="OpenFile" type="Button" parent="UI/TopMenu/TopMenuSeparator/EssentialControls"]
 layout_mode = 2
+shortcut = SubResource("Shortcut_4c57u")
 text = "Open"
 
 [node name="Save" type="Button" parent="UI/TopMenu/TopMenuSeparator/EssentialControls"]
 layout_mode = 2
+shortcut = SubResource("Shortcut_dg77c")
 text = "Save"
 
 [node name="SaveAs" type="Button" parent="UI/TopMenu/TopMenuSeparator/EssentialControls"]
 layout_mode = 2
+shortcut = SubResource("Shortcut_w48qg")
 text = "Save As"
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="UI/TopMenu"]
@@ -162,7 +208,9 @@ grow_vertical = 2
 size_flags_horizontal = 6
 
 [node name="PlayButton" type="Button" parent="UI/TopMenu/HBoxContainer2"]
+custom_minimum_size = Vector2(69.465, 0)
 layout_mode = 2
+shortcut = SubResource("Shortcut_2cqfq")
 text = "Play"
 
 [node name="SideMenu" type="Panel" parent="UI"]
@@ -270,6 +318,7 @@ layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 6
 theme = ExtResource("8_5vw27")
+text = "FPS"
 horizontal_alignment = 2
 script = ExtResource("7_272bh")
 
